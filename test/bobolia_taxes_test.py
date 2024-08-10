@@ -1,11 +1,38 @@
 import unittest
+
 import bobolia_taxes
 
-class bobolia_tax_tests(unittest.TestCase):
-    def test_simplest_case(self):
-        tax_return = {"income": {"salary": 50000}}
-        tax_calculator = bobolia_taxes.tax_calculator(tax_return)
-        self.assertEqual(7500, tax_calculator.get_tax())
+
+def make_return(args):
+    tax_return = {"income": {"salary": 0},
+                  "badbobs": {"class1": ()}}
+    tax_return.update(args)
+    return tax_return
+
+
+class BoboliaTaxTests(unittest.TestCase):
+    def setUp(self):
+        self.tax_calculator = bobolia_taxes.TaxCalculator()
+
+    def test_15pct_tax_rate(self):
+        tax_return = make_return({"income": {"salary": 50000}})
+        self.assertEqual(7500, self.tax_calculator.get_tax(tax_return))
+
+    def test_no_tax_for_30K_and_below(self):
+        tax_return = make_return({"income": {"salary": 30000}})
+        self.assertEqual(0, self.tax_calculator.get_tax(tax_return))
+
+    def test_no_after_tax_income_less_than_30K(self):
+        tax_return = make_return({"income": {"salary": 30001}})
+        self.assertEqual(1, self.tax_calculator.get_tax(tax_return))
+        tax_return = make_return({"income": {"salary": 35000}})
+        self.assertEqual(5000, self.tax_calculator.get_tax(tax_return))
+
+    def test_class_1_badbobs(self):
+        tax_return = make_return({"income": {"salary": 50000},
+                                  "badbobs": {"class1": (100,)}}
+                                 )
+        self.assertEqual(7550, self.tax_calculator.get_tax(tax_return))
 
 
 if __name__ == '__main__':
