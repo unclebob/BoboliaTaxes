@@ -62,5 +62,11 @@ class BoboliaTaxTests(unittest.TestCase):
                                  )
         self.assertEqual(7500 + 7500, self.tax_calculator.get_tax(tax_return))
 
+    def test_badbobs_do_not_reduce_after_tax_income_below_20000(self):
+        tax_return = make_return({"income": {"salary": 20000},
+                                  "badbobs": {"class2": (10000,)}}
+                                 )
+        self.assertEqual(0, self.tax_calculator.get_tax(tax_return))
+
 if __name__ == '__main__':
     unittest.main()
