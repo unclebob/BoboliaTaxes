@@ -5,8 +5,12 @@ import bobolia_taxes
 
 def make_return(args):
     tax_return = {"income": {"salary": 0},
-                  "badbobs": {"class1": ()}}
-    tax_return.update(args)
+                  "badbobs": {"class1": (),
+                              "class2": ()}}
+    if "income" in args:
+        tax_return["income"].update(args["income"])
+    if "badbobs" in args:
+        tax_return["badbobs"].update(args["badbobs"])
     return tax_return
 
 
@@ -34,6 +38,29 @@ class BoboliaTaxTests(unittest.TestCase):
                                  )
         self.assertEqual(7550, self.tax_calculator.get_tax(tax_return))
 
+    def test_class_2_badbob_purchases_under_1001(self):
+        tax_return = make_return({"income": {"salary": 50000},
+                                  "badbobs": {"class2": (400, 600)}}
+                                 )
+        self.assertEqual(7500, self.tax_calculator.get_tax(tax_return))
+
+    def test_class_2_badbob_purchases_under_10001(self):
+        tax_return = make_return({"income": {"salary": 50000},
+                                  "badbobs": {"class2": (10000,)}}
+                                 )
+        self.assertEqual(7500 + 2500, self.tax_calculator.get_tax(tax_return))
+
+    def test_class_2_badbob_purchases_under_50001(self):
+        tax_return = make_return({"income": {"salary": 50000},
+                                  "badbobs": {"class2": (10000,40000)}}
+                                 )
+        self.assertEqual(7500 + 5000, self.tax_calculator.get_tax(tax_return))
+
+    def test_class_2_badbob_purchases_over_50000(self):
+        tax_return = make_return({"income": {"salary": 50000},
+                                  "badbobs": {"class2": (10000,40000,1000)}}
+                                 )
+        self.assertEqual(7500 + 7500, self.tax_calculator.get_tax(tax_return))
 
 if __name__ == '__main__':
     unittest.main()
