@@ -26,75 +26,66 @@ class BoboliaTaxTests(unittest.TestCase):
     def get_tax(self):
         return self.tax_calculator.get_tax(self.tax_return)
 
+    def assert_tax_with_badbobs(self, income, badbobs, tax):
+        self.make_return({"income": {"salary": income},
+                          "badbobs": badbobs})
+        self.assertEqual(tax, self.get_tax())
+
     def test_class_1_badbobs(self):
-        self.make_return({"income": {"salary": 50000},
-                          "badbobs": {"class1": (100,)}}
-                         )
-        self.assertEqual(tax_50K + 50, self.get_tax())
+        self.assert_tax_with_badbobs(50000,
+                                     {"class1": (100,)},
+                                     tax_50K + 50)
 
     def test_class_2_badbob_purchases_under_1001(self):
-        self.make_return({"income": {"salary": 50000},
-                          "badbobs": {"class2": (400, 600)}}
-                         )
-        self.assertEqual(tax_50K, self.get_tax())
+        self.assert_tax_with_badbobs(50000,
+                                     {"class2": (400, 600)},
+                                     tax_50K)
 
     def test_class_2_badbob_purchases_under_10001(self):
-        self.make_return({"income": {"salary": 50000},
-                          "badbobs": {"class2": (10000,)}}
-                         )
-        self.assertEqual(tax_50K + 2500, self.get_tax())
+        self.assert_tax_with_badbobs(50000,
+                                     {"class2": (10000,)},
+                                     tax_50K + 2500)
 
     def test_class_2_badbob_purchases_under_50001(self):
-        self.make_return({"income": {"salary": 50000},
-                          "badbobs": {"class2": (10000, 40000)}}
-                         )
-        self.assertEqual(tax_50K + 5000, self.get_tax())
+        self.assert_tax_with_badbobs(50000,
+                                     {"class2": (10000, 40000)},
+                                     tax_50K + 5000)
 
     def test_class_2_badbob_purchases_over_50000(self):
-        self.make_return({"income": {"salary": 50000},
-                          "badbobs": {"class2": (10000, 40000, 1000)}}
-                         )
-        self.assertEqual(tax_50K + 7500, self.get_tax())
+        self.assert_tax_with_badbobs(50000,
+                                     {"class2": (10000, 40000, 1000)},
+                                     tax_50K + 7500)
 
     def test_badbobs_do_not_reduce_after_tax_income_below_20000(self):
-        self.make_return({"income": {"salary": 20000},
-                          "badbobs": {"class2": (10000,)}}
-                         )
-        self.assertEqual(0, self.get_tax())
+        self.assert_tax_with_badbobs(20000,
+                                     {"class2": (10000,)},
+                                     0)
+
+    def assert_tax_for(self, income, tax):
+        self.make_simple_return(income)
+        self.assertEqual(tax, self.get_tax())
 
     def test_0_30_tax_bracket(self):
-        self.make_simple_return(15000)
-        self.assertEqual(0, self.get_tax())
-        self.make_simple_return(30000)
-        self.assertEqual(0, self.get_tax())
+        self.assert_tax_for(15000, 0)
+        self.assert_tax_for(30000, 0)
 
     def test_30_100_tax_bracket(self):
-        self.make_simple_return(30001)
-        self.assertEqual(0, self.get_tax())
-        self.make_simple_return(50000)
-        self.assertEqual(tax_50K, self.get_tax())
-        self.make_simple_return(100000)
-        self.assertEqual(10500, self.get_tax())
+        self.assert_tax_for(30001, 0)
+        self.assert_tax_for(50000, tax_50K)
+        self.assert_tax_for(100000, 10500)
 
     def test_100_250_tax_bracket(self):
-        self.make_simple_return(100001)
-        self.assertEqual(10500, self.get_tax())
-        self.make_simple_return(200000)
-        self.assertEqual(30500, self.get_tax())
-        self.make_simple_return(250000)
-        self.assertEqual(40500, self.get_tax())
+        self.assert_tax_for(100001, 10500)
+        self.assert_tax_for(200000, 30500)
+        self.assert_tax_for(250000, 40500)
 
     def test_250_500_tax_bracket(self):
-        self.make_simple_return(250001)
-        self.assertEqual(40500, self.get_tax())
-        self.make_simple_return(500000)
-        self.assertEqual(115500, self.get_tax())
+        self.assert_tax_for(250001, 40500)
+        self.assert_tax_for(500000, 115500)
 
     def test_500_up_tax_bracket(self):
-        self.make_simple_return(500001)
-        self.assertEqual(115500, self.get_tax())
-        self.make_simple_return(1000000)
-        self.assertEqual(315500, self.get_tax())
+        self.assert_tax_for(500001, 115500)
+        self.assert_tax_for(1000000, 315500)
 
 
 if __name__ == '__main__':
