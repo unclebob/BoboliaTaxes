@@ -6,8 +6,8 @@ class TaxCalculator:
     def get_tax(self, tax_return):
         self.tax_return = tax_return
         base_tax = self.determine_base_tax()
-        badbob_adujustment = BadBobAdjuster(self).get_adjustment()
-        total_tax = base_tax + badbob_adujustment
+        badbob_adjustment = BadBobAdjuster(self).get_adjustment()
+        total_tax = base_tax + badbob_adjustment
         after_tax_income = self.total_income - total_tax
         if after_tax_income < 20000:
             total_tax = max(0, self.total_income - 20000)
@@ -15,11 +15,16 @@ class TaxCalculator:
 
     def determine_base_tax(self):
         self.total_income = self.tax_return["income"]["salary"]
-        tax = self.total_income * 0.15
-        after_tax_income = self.total_income - tax
-        if after_tax_income < 30000:
-            tax = max (0, self.total_income - 30000)
-        return tax
+        if self.total_income <= 30000:
+            return 0
+        elif self.total_income <= 100000:
+            return round(0.15 * (self.total_income - 30000))
+        elif self.total_income <= 250000:
+            return round(0.2 * (self.total_income - 100000) + 10500)
+        elif self.total_income <= 500000:
+            return round(0.3 * (self.total_income - 250000) + 40500)
+        else:
+            return round(0.4 * (self.total_income - 500000) + 115500)
 
 
 class BadBobAdjuster:
