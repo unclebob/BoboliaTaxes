@@ -1,13 +1,18 @@
 import unittest
 
-import bobolia_taxes
+import badbob_adjuster
+import tax_bracketter
+import tax_calculator
 
 tax_50K = 3000
 
 
 class BoboliaTaxTests(unittest.TestCase):
     def setUp(self):
-        self.tax_calculator = bobolia_taxes.TaxCalculator()
+        self.tax_bracketter = tax_bracketter.TaxBracketter()
+        self.badbob_adjuster = badbob_adjuster.BadBobAdjuster()
+        self.tax_calculator = tax_calculator.TaxCalculator(
+            self.tax_bracketter, self.badbob_adjuster)
         self.tax_return = None
 
     def make_return(self, args):
@@ -18,7 +23,7 @@ class BoboliaTaxTests(unittest.TestCase):
             tax_return_data["income"].update(args["income"])
         if "badbobs" in args:
             tax_return_data["badbobs"].update(args["badbobs"])
-        self.tax_return = bobolia_taxes.TaxReturn(tax_return_data)
+        self.tax_return = tax_calculator.TaxReturn(tax_return_data)
 
     def make_simple_return(self, salary):
         self.make_return({"income": {"salary": salary}})
