@@ -14,17 +14,22 @@ class TaxCalculator:
         return total_tax
 
     def determine_base_tax(self):
+        tax_brackets = ((30000, 0),
+                        (100000, .15),
+                        (250000, .20),
+                        (500000, .30),
+                        (None, .40))
+
         self.total_income = self.tax_return["income"]["salary"]
-        if self.total_income <= 30000:
-            return 0
-        elif self.total_income <= 100000:
-            return round(0.15 * (self.total_income - 30000))
-        elif self.total_income <= 250000:
-            return round(0.2 * (self.total_income - 100000) + 10500)
-        elif self.total_income <= 500000:
-            return round(0.3 * (self.total_income - 250000) + 40500)
-        else:
-            return round(0.4 * (self.total_income - 500000) + 115500)
+
+        previous_maximum = 0
+        offset = 0
+        for maximum, rate in tax_brackets:
+            if maximum is None or self.total_income <= maximum:
+                return round(rate * (self.total_income - previous_maximum) + offset)
+            else:
+                offset = (maximum - previous_maximum) * rate + offset
+                previous_maximum = maximum
 
 
 class BadBobAdjuster:
