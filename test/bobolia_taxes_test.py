@@ -11,14 +11,14 @@ class BoboliaTaxTests(unittest.TestCase):
         self.tax_return = None
 
     def make_return(self, args):
-        tax_return = {"income": {"salary": 0},
-                      "badbobs": {"class1": (),
-                                  "class2": ()}}
+        tax_return_data = {"income": {"salary": 0},
+                           "badbobs": {"class1": (),
+                                       "class2": ()}}
         if "income" in args:
-            tax_return["income"].update(args["income"])
+            tax_return_data["income"].update(args["income"])
         if "badbobs" in args:
-            tax_return["badbobs"].update(args["badbobs"])
-        self.tax_return = tax_return
+            tax_return_data["badbobs"].update(args["badbobs"])
+        self.tax_return = bobolia_taxes.TaxReturn(tax_return_data)
 
     def make_simple_return(self, salary):
         self.make_return({"income": {"salary": salary}})
